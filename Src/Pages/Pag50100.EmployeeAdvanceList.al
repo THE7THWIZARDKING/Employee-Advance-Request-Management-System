@@ -33,7 +33,13 @@ page 50100 "Employee Advance List"
                 {
                     ApplicationArea = All;
                 }
+
             }
         }
+
     }
+    trigger OnAfterGetRecord()
+    begin
+        Rec.CalcFields("Total Amount");
+    end;
 }

@@ -1,11 +1,12 @@
 table 50101 "Employee Advance Line"
 {
     Caption = 'Employee Advance Line';
-    DataClassification = ToBeClassified;
-    
+    DataClassification = CustomerContent;
+    // DelayedInsert = true;
+
     fields
     {
-       field(1; "Request No."; Code[20])
+        field(1; "Request No."; Code[20])
         {
             Caption = 'Request No.';
             DataClassification = CustomerContent;
@@ -84,8 +85,8 @@ table 50101 "Employee Advance Line"
             DataClassification = CustomerContent;
         }
     }
-  
-   keys
+
+    keys
     {
         key(PK; "Request No.", "Line No.")
         {
@@ -93,26 +94,9 @@ table 50101 "Employee Advance Line"
         }
     }
 
-    trigger OnInsert()
-    begin
-        UpdateHeaderTotal();
-    end;
-
-    trigger OnModify()
-    begin
-        UpdateHeaderTotal();
-    end;
-
-    trigger OnDelete()
-    begin
-        UpdateHeaderTotal();
-    end;
-
     local procedure CalculateLineAmount()
     begin
         "Line Amount" := Quantity * "Unit Cost";
-
-        UpdateHeaderTotal();
     end;
 
     local procedure ValidateExpenseRules()
@@ -120,26 +104,5 @@ table 50101 "Employee Advance Line"
         if ("Expense Type" = "Expense Type"::Travel) and
            (Description = '') then
             Error('Description is mandatory for Travel expenses.');
-    end;
-
-    local procedure UpdateHeaderTotal()
-    var
-        AdvanceLine: Record "Employee Advance Line";
-        AdvanceHeader: Record "Employee Advance Header";
-        TotalAmount: Decimal;
-    begin
-        TotalAmount := 0;
-
-        AdvanceLine.SetRange("Request No.", "Request No.");
-
-        if AdvanceLine.FindSet() then
-            repeat
-                TotalAmount += AdvanceLine."Line Amount";
-            until AdvanceLine.Next() = 0;
-
-        if AdvanceHeader.Get("Request No.") then begin
-            AdvanceHeader."Total Amount" := TotalAmount;
-            AdvanceHeader.Modify();
-        end;
     end;
 }

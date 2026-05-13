@@ -3,6 +3,7 @@ page 50101 "Employee Advance Card"
     Caption = 'Employee Advance Card';
     PageType = Card;
     SourceTable = "Employee Advance Header";
+    // ApplicationArea = All;
 
     layout
     {
@@ -10,33 +11,37 @@ page 50101 "Employee Advance Card"
         {
             group(General)
             {
-                Caption = 'General';
                 field("Request No."; Rec."Request No.")
                 {
                     ApplicationArea = All;
                 }
+
                 field("Employee No."; Rec."Employee No.")
                 {
                     ApplicationArea = All;
                 }
+
                 field("Employee Name"; Rec."Employee Name")
                 {
                     ApplicationArea = All;
                 }
+
                 field(Department; Rec.Department)
                 {
                     ApplicationArea = All;
                 }
+
                 field("Request Date"; Rec."Request Date")
                 {
                     ApplicationArea = All;
                 }
+
                 field(Status; Rec.Status)
                 {
                     ApplicationArea = All;
                 }
-
             }
+
             group(Amounts)
             {
                 field("Total Amount"; Rec."Total Amount")
@@ -67,8 +72,8 @@ page 50101 "Employee Advance Card"
         }
     }
 
-    trigger     OnAfterGetCurrRecord()
+    trigger OnAfterGetCurrRecord()
     begin
-        CurrPage.Update();
+        Rec.CalcFields("Total Amount");
     end;
 }

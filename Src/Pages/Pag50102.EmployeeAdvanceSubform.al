@@ -1,8 +1,10 @@
 page 50102 "Employee Advance Subform"
 {
-    Caption = 'Employee Advance Subform';
+    Caption = 'Advance Lines';
     PageType = ListPart;
     SourceTable = "Employee Advance Line";
+    // ApplicationArea = All;
+
     AutoSplitKey = true;
     DelayedInsert = true;
 
@@ -10,7 +12,7 @@ page 50102 "Employee Advance Subform"
     {
         area(Content)
         {
-            repeater(General)
+            repeater(Lines)
             {
                 field("Expense Type"; Rec."Expense Type")
                 {

@@ -46,6 +46,12 @@ table 50100 "Employee Advance Header"
         {
             Caption = 'Request Date';
             DataClassification = CustomerContent;
+
+            trigger OnValidate()
+            begin
+                if "Request Date" > Today then
+                    Error('Request Date cannot be a future date.');
+            end;
         }
 
         field(6; Status; Enum "Advance Status")
@@ -57,7 +63,11 @@ table 50100 "Employee Advance Header"
         field(7; "Total Amount"; Decimal)
         {
             Caption = 'Total Amount';
-            DataClassification = CustomerContent;
+            FieldClass = FlowField;
+
+            CalcFormula = Sum("Employee Advance Line"."Line Amount"
+                where("Request No." = field("Request No.")));
+
             Editable = false;
         }
 
@@ -68,6 +78,8 @@ table 50100 "Employee Advance Header"
 
             trigger OnValidate()
             begin
+                CalcFields("Total Amount");
+
                 if "Approved Amount" > "Total Amount" then
                     Error('Approved Amount cannot exceed Total Amount.');
             end;
@@ -77,14 +89,6 @@ table 50100 "Employee Advance Header"
         {
             Caption = 'Remarks';
             DataClassification = CustomerContent;
-        }
-
-        field(10; "No. Series"; Code[20])
-        {
-            Caption = 'No. Series';
-            DataClassification = CustomerContent;
-            Editable = false;
-            TableRelation = "No. Series";
         }
     }
 
@@ -96,24 +100,29 @@ table 50100 "Employee Advance Header"
         }
     }
 
-    local procedure GetNoSeriesCode(): Code[20]
-    begin
-        exit('TEST-01');
-    end;
-
     trigger OnInsert()
     var
-        NoSeriesMgt: Codeunit NoSeriesManagement;
+        AdvanceHeader: Record "Employee Advance Header";
+        LastNo: Integer;
+        NewNo: Code[20];
     begin
         "Request Date" := Today;
         Status := Status::Open;
 
-        if "Request No." = '' then
-            NoSeriesMgt.InitSeries(
-                'TEST-01',
-                xRec."No. Series",
-                WorkDate(),
-                "Request No.",
-                "No. Series");
+        if "Request No." = '' then begin
+
+            LastNo := 0;
+
+            if AdvanceHeader.FindLast() then begin
+                Evaluate(LastNo,
+                    DelStr(AdvanceHeader."Request No.", 1, 3));
+            end;
+
+            LastNo += 1;
+
+            NewNo := 'ADV' + PadStr(Format(LastNo), 4, '0');
+
+            "Request No." := NewNo;
+        end;
     end;
 }
