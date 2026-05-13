@@ -14,6 +14,10 @@ page 50102 "Employee Advance Subform"
         {
             repeater(Lines)
             {
+                field("Line No."; Rec."Line No.")
+                {
+                    ApplicationArea = All;
+                }
                 field("Expense Type"; Rec."Expense Type")
                 {
                     ApplicationArea = All;

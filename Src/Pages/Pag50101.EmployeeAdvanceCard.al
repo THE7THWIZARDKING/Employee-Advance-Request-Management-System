@@ -14,6 +14,8 @@ page 50101 "Employee Advance Card"
                 field("Request No."; Rec."Request No.")
                 {
                     ApplicationArea = All;
+                    Editable = false;
+
                 }
 
                 field("Employee No."; Rec."Employee No.")
@@ -24,6 +26,8 @@ page 50101 "Employee Advance Card"
                 field("Employee Name"; Rec."Employee Name")
                 {
                     ApplicationArea = All;
+                    Editable = false;
+
                 }
 
                 field(Department; Rec.Department)
@@ -39,6 +43,8 @@ page 50101 "Employee Advance Card"
                 field(Status; Rec.Status)
                 {
                     ApplicationArea = All;
+                    Editable = false;
+
                 }
             }
 
