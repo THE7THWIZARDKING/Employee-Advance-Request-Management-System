@@ -67,7 +67,6 @@ table 50100 "Employee Advance Header"
 
             CalcFormula = Sum("Employee Advance Line"."Line Amount"
                 where("Request No." = field("Request No.")));
-
             Editable = false;
         }
 

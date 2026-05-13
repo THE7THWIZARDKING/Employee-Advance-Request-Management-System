@@ -33,6 +33,10 @@ page 50100 "Employee Advance List"
                 {
                     ApplicationArea = All;
                 }
+                field("Approved Amount"; Rec."Approved Amount")
+                {
+                    ApplicationArea = All;
+                }
 
             }
         }
