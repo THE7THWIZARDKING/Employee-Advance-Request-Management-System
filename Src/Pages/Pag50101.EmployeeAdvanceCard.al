@@ -154,6 +154,43 @@ page 50101 "Employee Advance Card"
                     Message('Request %1 rejected.', Rec."Request No.");
                 end;
             }
+            action("Post Request")
+            {
+                ApplicationArea = All;
+                Caption = 'Post Request';
+                Image = Post;
+
+                trigger OnAction()
+                var
+                    PostedAdvanceHeader: Record "Posted Advance Header";
+                begin
+                    if Rec.Status <> Rec.Status::Approved then
+                        Error('Only approved requests can be posted.');
+
+                    if Rec."Total Amount" <= 0 then
+                        Error('Total Amount must be greater than zero.');
+
+                    PostedAdvanceHeader.Reset();
+                    PostedAdvanceHeader.SetRange("Request No.", Rec."Request No.");
+
+                    if PostedAdvanceHeader.FindFirst() then
+                        Error('This request has already been posted.');
+
+                    PostedAdvanceHeader.Init();
+
+                    PostedAdvanceHeader.TransferFields(Rec);
+
+                    PostedAdvanceHeader."Posted No." := 'POST-' + Rec."Request No.";
+                    PostedAdvanceHeader."Posted Date" := Today;
+
+                    PostedAdvanceHeader.Insert();
+
+                    Rec.Status := Rec.Status::Posted;
+                    Rec.Modify();
+
+                    Message('Request %1 posted successfully.', Rec."Request No.");
+                end;
+            }
         }
     }
     trigger OnAfterGetCurrRecord()
