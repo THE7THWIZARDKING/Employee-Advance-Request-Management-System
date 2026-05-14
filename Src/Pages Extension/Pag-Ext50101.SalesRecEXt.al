@@ -4,14 +4,14 @@ pageextension 50101 "Sales & Rec EXt" extends "Sales & Receivables Setup"
     {
         addafter("Customer Nos.")
         {
-            group(EmployeeAdvanceGroup)
+            // group(EmployeeAdvanceGroup)
+            // {
+            //     Caption = 'Employee Advance Request';
+            field("Employee Advance Nos."; Rec."Employee Advance Nos.")
             {
-                Caption = 'Employee Advance Request';
-                field("Employee Advance Nos."; Rec."Employee Advance Nos.")
-                {
-                    ApplicationArea = All;
-                }
+                ApplicationArea = All;
             }
+            // }
         }
     }
 }
