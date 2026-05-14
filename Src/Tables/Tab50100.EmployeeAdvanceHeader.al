@@ -9,9 +9,15 @@ table 50100 "Employee Advance Header"
         {
             Caption = 'Request No.';
             DataClassification = CustomerContent;
+
+        }
+        field(2; "No. Series"; Code[20])
+        {
+            DataClassification = ToBeClassified;
+            TableRelation = "No. Series";
         }
 
-        field(2; "Employee No."; Code[20])
+        field(3; "Employee No."; Code[20])
         {
             Caption = 'Employee No.';
             DataClassification = CustomerContent;
@@ -28,21 +34,21 @@ table 50100 "Employee Advance Header"
             end;
         }
 
-        field(3; "Employee Name"; Text[100])
+        field(4; "Employee Name"; Text[100])
         {
             Caption = 'Employee Name';
             DataClassification = CustomerContent;
             Editable = false;
         }
 
-        field(4; Department; Text[50])
+        field(5; Department; Text[50])
         {
             Caption = 'Department';
             DataClassification = CustomerContent;
             Editable = false;
         }
 
-        field(5; "Request Date"; Date)
+        field(6; "Request Date"; Date)
         {
             Caption = 'Request Date';
             DataClassification = CustomerContent;
@@ -54,13 +60,13 @@ table 50100 "Employee Advance Header"
             end;
         }
 
-        field(6; Status; Enum "Advance Status")
+        field(7; Status; Enum "Advance Status")
         {
             Caption = 'Status';
             DataClassification = CustomerContent;
         }
 
-        field(7; "Total Amount"; Decimal)
+        field(8; "Total Amount"; Decimal)
         {
             Caption = 'Total Amount';
             FieldClass = FlowField;
@@ -70,7 +76,7 @@ table 50100 "Employee Advance Header"
             Editable = false;
         }
 
-        field(8; "Approved Amount"; Decimal)
+        field(9; "Approved Amount"; Decimal)
         {
             Caption = 'Approved Amount';
             DataClassification = CustomerContent;
@@ -84,7 +90,7 @@ table 50100 "Employee Advance Header"
             end;
         }
 
-        field(9; Remarks; Text[250])
+        field(10; Remarks; Text[250])
         {
             Caption = 'Remarks';
             DataClassification = CustomerContent;
@@ -99,29 +105,43 @@ table 50100 "Employee Advance Header"
         }
     }
 
+    // trigger OnInsert()
+    // var
+    //     AdvanceHeader: Record "Employee Advance Header";
+    //     LastNo: Integer;
+    //     NewNo: Code[20];
+    // begin
+    //     "Request Date" := Today;
+    //     Status := Status::Open;
+
+    //     if "Request No." = '' then begin
+
+    //         LastNo := 0;
+
+    //         if AdvanceHeader.FindLast() then begin
+    //             Evaluate(LastNo,
+    //                 DelStr(AdvanceHeader."Request No.", 1, 3));
+    //         end;
+
+    //         LastNo += 1;
+
+    //         NewNo := 'ADV' + PadStr(Format(LastNo), 4, '0');
+
+    //         "Request No." := NewNo;
+    //     end;
+    // end;
+
     trigger OnInsert()
     var
-        AdvanceHeader: Record "Employee Advance Header";
-        LastNo: Integer;
-        NewNo: Code[20];
+        salessetup: Record "Sales & Receivables Setup";
+        NoSeriesMgt: Codeunit NoSeriesManagement;
     begin
-        "Request Date" := Today;
-        Status := Status::Open;
-
         if "Request No." = '' then begin
-
-            LastNo := 0;
-
-            if AdvanceHeader.FindLast() then begin
-                Evaluate(LastNo,
-                    DelStr(AdvanceHeader."Request No.", 1, 3));
-            end;
-
-            LastNo += 1;
-
-            NewNo := 'ADV' + PadStr(Format(LastNo), 4, '0');
-
-            "Request No." := NewNo;
+            salessetup.Get();
+            salessetup.TestField("Employee Advance Nos.");
+            "Request No." := NoSeriesMgt.GetNextNo(salessetup."Employee Advance Nos.", Today(), true);
+            "No. Series" := salessetup."Employee Advance Nos.";
         end;
+
     end;
 }

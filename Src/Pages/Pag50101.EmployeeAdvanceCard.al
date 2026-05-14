@@ -21,6 +21,7 @@ page 50101 "Employee Advance Card"
                 field("Employee No."; Rec."Employee No.")
                 {
                     ApplicationArea = All;
+                    ShowMandatory   = true;
                 }
 
                 field("Employee Name"; Rec."Employee Name")
