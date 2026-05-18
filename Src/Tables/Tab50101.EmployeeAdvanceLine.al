@@ -84,6 +84,11 @@ table 50101 "Employee Advance Line"
             Caption = 'Is Urgent';
             DataClassification = CustomerContent;
         }
+        field(9; "Is Not Urgent"; Boolean)
+        {
+            Caption = 'Is Urgent';
+            DataClassification = CustomerContent;
+        }
     }
 
     keys
