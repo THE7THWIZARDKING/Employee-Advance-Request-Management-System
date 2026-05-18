@@ -3,7 +3,9 @@ page 50101 "Employee Advance Card"
     Caption = 'Employee Advance Card';
     PageType = Card;
     SourceTable = "Employee Advance Header";
-    // ApplicationArea = All;
+    UsageCategory = Documents;
+    ApplicationArea = All;
+
 
     layout
     {
@@ -14,6 +16,7 @@ page 50101 "Employee Advance Card"
                 field("Request No."; Rec."Request No.")
                 {
                     ApplicationArea = All;
+
                     Editable = false;
 
                 }
@@ -21,12 +24,14 @@ page 50101 "Employee Advance Card"
                 field("Employee No."; Rec."Employee No.")
                 {
                     ApplicationArea = All;
-                    ShowMandatory   = true;
+
+                    ShowMandatory = true;
                 }
 
                 field("Employee Name"; Rec."Employee Name")
                 {
                     ApplicationArea = All;
+
                     Editable = false;
 
                 }
@@ -39,11 +44,13 @@ page 50101 "Employee Advance Card"
                 field("Request Date"; Rec."Request Date")
                 {
                     ApplicationArea = All;
+
                 }
 
                 field(Status; Rec.Status)
                 {
                     ApplicationArea = All;
+
                     Editable = false;
 
                 }
@@ -54,26 +61,37 @@ page 50101 "Employee Advance Card"
                 field("Total Amount"; Rec."Total Amount")
                 {
                     ApplicationArea = All;
+
                 }
 
                 field("Approved Amount"; Rec."Approved Amount")
                 {
                     ApplicationArea = All;
+
+                    // Editable = false;
                 }
             }
 
             group(RemarksSection)
             {
+                Caption = 'Remarks';
                 field(Remarks; Rec.Remarks)
                 {
                     ApplicationArea = All;
+
                     MultiLine = true;
+                    ShowMandatory = Rec.Status = Rec.Status::"Pending Approval";
+                    // trigger OnValidate()
+                    // begin
+                    //     CurrPage.SaveRecord();
+                    // end;
                 }
+
             }
 
             part(AdvanceLines; "Employee Advance Subform")
             {
-                ApplicationArea = All;
+
                 SubPageLink = "Request No." = field("Request No.");
             }
         }
@@ -85,9 +103,11 @@ page 50101 "Employee Advance Card"
         {
             action("Send for Approval")
             {
-                ApplicationArea = All;
+
                 Caption = 'Send for Approval';
                 Image = SendApprovalRequest;
+                ApplicationArea = All;
+
 
                 trigger OnAction()
                 var
@@ -113,9 +133,11 @@ page 50101 "Employee Advance Card"
 
             action("Approve Request")
             {
-                ApplicationArea = All;
+
                 Caption = 'Approve Request';
                 Image = Approve;
+                ApplicationArea = All;
+
 
                 trigger OnAction()
                 begin
@@ -128,69 +150,105 @@ page 50101 "Employee Advance Card"
                     Rec."Approved Amount" := Rec."Total Amount";
                     Rec.Status := Rec.Status::Approved;
 
-                    Rec.Modify();
+                    // Rec.Modify();
+                    Rec.Modify(true);
 
                     Message('Request %1 approved successfully.', Rec."Request No.");
                 end;
             }
 
+            // action("Reject Request")
+            // {
+            //     ApplicationArea = All;
+            //     Caption = 'Reject Request';
+            //     Image = Reject;
+
+            //     trigger OnAction()
+            //     begin
+            //         if Rec.Status <> Rec.Status::"Pending Approval" then
+            //             Error('Only Pending Approval requests can be rejected.');
+
+            //         if Rec.Remarks = '' then
+            //             Error('Remarks must be entered before rejection.');
+
+            //         Rec.Status := Rec.Status::Rejected;
+
+            //         Rec.Modify();
+
+            //         Message('Request %1 rejected.', Rec."Request No.");
+            //     end;
+            // }
+
+
             action("Reject Request")
             {
-                ApplicationArea = All;
+
                 Caption = 'Reject Request';
                 Image = Reject;
+                ApplicationArea = All;
+
 
                 trigger OnAction()
                 begin
+                    CurrPage.SaveRecord();
+
                     if Rec.Status <> Rec.Status::"Pending Approval" then
                         Error('Only Pending Approval requests can be rejected.');
 
-                    if Rec.Remarks = '' then
+                    if Rec.Remarks = ' ' then
                         Error('Remarks must be entered before rejection.');
 
                     Rec.Status := Rec.Status::Rejected;
-
-                    Rec.Modify();
+                    Rec.Modify(true);
 
                     Message('Request %1 rejected.', Rec."Request No.");
                 end;
             }
             action("Post Request")
             {
-                ApplicationArea = All;
+
                 Caption = 'Post Request';
                 Image = Post;
+                ApplicationArea = All;
+
+
 
                 trigger OnAction()
                 var
-                    PostedAdvanceHeader: Record "Posted Advance Header";
+                    AdvancePost: Codeunit "Employee Advance Post";
                 begin
-                    if Rec.Status <> Rec.Status::Approved then
-                        Error('Only approved requests can be posted.');
-
-                    if Rec."Total Amount" <= 0 then
-                        Error('Total Amount must be greater than zero.');
-
-                    PostedAdvanceHeader.Reset();
-                    PostedAdvanceHeader.SetRange("Request No.", Rec."Request No.");
-
-                    if PostedAdvanceHeader.FindFirst() then
-                        Error('This request has already been posted.');
-
-                    PostedAdvanceHeader.Init();
-
-                    PostedAdvanceHeader.TransferFields(Rec);
-
-                    PostedAdvanceHeader."Posted No." := 'POST-' + Rec."Request No.";
-                    PostedAdvanceHeader."Posted Date" := Today;
-
-                    PostedAdvanceHeader.Insert();
-
-                    Rec.Status := Rec.Status::Posted;
-                    Rec.Modify();
-
-                    Message('Request %1 posted successfully.', Rec."Request No.");
+                    AdvancePost.PostAdvance(Rec);
                 end;
+                // trigger OnAction()
+                // var
+                //     PostedAdvanceHeader: Record "Posted Advance Header";
+                // begin
+                //     if Rec.Status <> Rec.Status::Approved then
+                //         Error('Only approved requests can be posted.');
+
+                //     if Rec."Total Amount" <= 0 then
+                //         Error('Total Amount must be greater than zero.');
+
+                //     PostedAdvanceHeader.Reset();
+                //     PostedAdvanceHeader.SetRange("Request No.", Rec."Request No.");
+
+                //     if PostedAdvanceHeader.FindFirst() then
+                //         Error('This request has already been posted.');
+
+                //     PostedAdvanceHeader.Init();
+
+                //     PostedAdvanceHeader.TransferFields(Rec);
+
+                //     PostedAdvanceHeader."Posted No." := 'POST-' + Rec."Request No.";
+                //     PostedAdvanceHeader."Posted Date" := Today;
+
+                //     PostedAdvanceHeader.Insert();
+
+                //     Rec.Status := Rec.Status::Posted;
+                //     Rec.Modify();
+
+                //     Message('Request %1 posted successfully.', Rec."Request No.");
+                // end;
             }
         }
     }

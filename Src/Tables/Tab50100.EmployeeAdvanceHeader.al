@@ -87,6 +87,10 @@ table 50100 "Employee Advance Header"
 
                 if "Approved Amount" > "Total Amount" then
                     Error('Approved Amount cannot exceed Total Amount.');
+                if "Approved Amount" < 0 then
+                    Error('Approved Amount cannot be negative.');
+                if "Approved Amount" <= 0 then
+                    error('Approved Amount must be greater than zero.');
             end;
         }
 
